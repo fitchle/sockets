@@ -20,7 +20,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 final class ServerThread {
-    private final BenchionServer server;
     private final int port;
 
     private final List<ChannelHandler> handlers;
@@ -34,7 +33,6 @@ final class ServerThread {
     private CompletableFuture<Void> task;
 
     public ServerThread(BenchionServer server) {
-        this.server = server;
         this.port = server.getPort();
         this.handlers = server.getHandlers();
         this.executorGroups = server.getExecutorGroups();
@@ -45,7 +43,8 @@ final class ServerThread {
     }
 
     public void run() {
-        if (!(this.task == null || this.task.isCancelled() || this.task.isDone() || this.task.isCompletedExceptionally())) return;
+        if (!(this.task == null || this.task.isCancelled() || this.task.isDone() || this.task.isCompletedExceptionally()))
+            return;
         this.task = CompletableFuture.runAsync(() -> {
             EventLoopGroup bossGroup = new NioEventLoopGroup();
             EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -58,8 +57,8 @@ final class ServerThread {
                             public void initChannel(SocketChannel ch) {
                                 ch = socketChannelModify.apply(ch);
                                 ChannelPipeline pipeline = ch.pipeline();
-                                executorGroups.forEach(group -> pipeline.addLast(group));
-                                handlers.forEach(handler -> pipeline.addLast(handler));
+                                executorGroups.forEach(pipeline::addLast);
+                                handlers.forEach(pipeline::addLast);
                                 pipeline.addLast(new StringDecoder(), new StringEncoder());
                                 listeners.forEach(listener -> pipeline.addLast(new ChannelInboundHandlerAdapter() {
                                     @Override
@@ -113,7 +112,8 @@ final class ServerThread {
     }
 
     public void shutdown() {
-        if (this.task == null || this.task.isCancelled() || this.task.isDone() || this.task.isCompletedExceptionally()) return;
+        if (this.task == null || this.task.isCancelled() || this.task.isDone() || this.task.isCompletedExceptionally())
+            return;
         this.task.cancel(true);
     }
 }
