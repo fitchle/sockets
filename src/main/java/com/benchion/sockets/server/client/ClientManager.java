@@ -18,7 +18,7 @@ public final class ClientManager {
     }
 
     public void remove(ServerClient client) {
-        if (this.clients.contains(client)) this.clients.remove(client);
+        this.clients.remove(client);
         client.disconnect();
     }
 }

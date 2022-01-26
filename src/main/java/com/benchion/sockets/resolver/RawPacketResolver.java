@@ -18,12 +18,11 @@ import java.util.Base64;
 import java.util.HashMap;
 
 public final class RawPacketResolver {
-    private final JsonObject content;
     private final int id;
-    private HashMap<String, Object> data;
+    private final HashMap<String, Object> data;
 
     public RawPacketResolver(String str) throws IllegalPacketFormat {
-        this.content = JsonParser.parseString(decode(str)).getAsJsonObject();
+        JsonObject content = JsonParser.parseString(decode(str)).getAsJsonObject();
         if (!content.has("packet_id")) throw new IllegalPacketFormat("The packet id is not specified!");
 
         this.id = content.get("packet_id").getAsInt();
