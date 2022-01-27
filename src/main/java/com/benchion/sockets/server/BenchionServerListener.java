@@ -13,6 +13,7 @@ public abstract class BenchionServerListener {
 
     /**
      * triggered when a client disconnects from the server
+     *
      * @param client client
      */
     public void clientDisconnect(PacketSender client) {
@@ -21,7 +22,7 @@ public abstract class BenchionServerListener {
     /**
      * triggered when a packet is received from the client
      *
-     * @param client client
+     * @param client  client
      * @param message client's message
      */
     public void onPacketReceive(PacketSender client, String message) {
@@ -30,7 +31,7 @@ public abstract class BenchionServerListener {
     /**
      * triggered when an error occurs.
      *
-     * @param client client
+     * @param client    client
      * @param throwable throwable
      */
     public void exceptionCaught(PacketSender client, Throwable throwable) {

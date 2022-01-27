@@ -11,6 +11,8 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
@@ -46,6 +48,7 @@ final class ServerThread {
                                 ChannelPipeline pipeline = ch.pipeline();
                                 server.getExecutorGroups().forEach(pipeline::addLast);
                                 server.getHandlers().forEach(pipeline::addLast);
+                                pipeline.addLast(new DelimiterBasedFrameDecoder(server.getBufferLimit(), Delimiters.lineDelimiter()));
                                 pipeline.addLast(new StringDecoder(), new StringEncoder());
                                 server.getListeners().forEach(listener -> pipeline.addLast(new ChannelInboundHandlerAdapter() {
                                     private PacketSender sender;

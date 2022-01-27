@@ -29,6 +29,7 @@ public final class BenchionClient {
 
     private final HashMap<ChannelOption, Object> channelOptionsMap;
     private Function<SocketChannel, SocketChannel> socketChannelModify;
+    private int bufferLimit;
 
     private ClientThread clientThread;
 
@@ -46,6 +47,7 @@ public final class BenchionClient {
         this.listeners = new ArrayList<>();
         this.channelOptionsMap = new HashMap<>();
         this.socketChannelModify = Function.identity();
+        this.bufferLimit = 1024;
     }
 
     /**
@@ -92,6 +94,11 @@ public final class BenchionClient {
      */
     public BenchionClient modify(Function<SocketChannel, SocketChannel> modifier) {
         this.socketChannelModify = modifier;
+        return this;
+    }
+
+    public BenchionClient setBufferLimit(int bufferLimit) {
+        this.bufferLimit = bufferLimit;
         return this;
     }
 
