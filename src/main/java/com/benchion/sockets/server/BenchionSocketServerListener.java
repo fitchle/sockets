@@ -2,7 +2,7 @@ package com.benchion.sockets.server;
 
 import com.benchion.sockets.packet.PacketSender;
 
-public abstract class BenchionServerListener {
+public abstract class BenchionSocketServerListener {
     /**
      * triggered when a client successfully connects to the server
      *

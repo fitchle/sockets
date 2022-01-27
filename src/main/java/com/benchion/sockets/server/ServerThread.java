@@ -2,6 +2,7 @@ package com.benchion.sockets.server;
 
 import com.benchion.sockets.packet.BenchionPacket;
 import com.benchion.sockets.packet.PacketContext;
+import com.benchion.sockets.packet.PacketRegistry;
 import com.benchion.sockets.packet.PacketSender;
 import com.benchion.sockets.packet.exceptions.IllegalPacket;
 import com.benchion.sockets.resolver.RawPacketResolver;
@@ -15,25 +16,27 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import lombok.val;
 
 import java.util.Base64;
-import java.util.concurrent.CompletableFuture;
 
 final class ServerThread {
     private final int port;
-    private final BenchionServer server;
+    private final BenchionSocketServer server;
+    private final PacketRegistry registry;
 
-    private CompletableFuture<Void> task;
+    private Thread task;
 
-    public ServerThread(BenchionServer server) {
+    public ServerThread(BenchionSocketServer server) {
         this.server = server;
         this.port = server.getPort();
+        this.registry = server.getRegistry();
     }
 
     public void run() {
-        if (!(this.task == null || this.task.isCancelled() || this.task.isDone() || this.task.isCompletedExceptionally()))
+        if (!(this.task == null || this.task.isAlive()))
             return;
-        this.task = CompletableFuture.runAsync(() -> {
+        this.task = new Thread(() -> {
             EventLoopGroup bossGroup = new NioEventLoopGroup();
             EventLoopGroup workerGroup = new NioEventLoopGroup();
             try {
@@ -47,49 +50,54 @@ final class ServerThread {
                                 ch = server.getSocketChannelModify().apply(ch);
                                 ChannelPipeline pipeline = ch.pipeline();
                                 server.getExecutorGroups().forEach(pipeline::addLast);
-                                server.getHandlers().forEach(pipeline::addLast);
                                 pipeline.addLast(new DelimiterBasedFrameDecoder(server.getBufferLimit(), Delimiters.lineDelimiter()));
                                 pipeline.addLast(new StringDecoder(), new StringEncoder());
-                                server.getListeners().forEach(listener -> pipeline.addLast(new ChannelInboundHandlerAdapter() {
-                                    private PacketSender sender;
-
+                                pipeline.addLast(new ChannelInboundHandlerAdapter() {
                                     @Override
                                     public void channelActive(ChannelHandlerContext channelHandlerContext) {
-                                        listener.clientConnect(new PacketSender(channelHandlerContext.channel()));
+                                        PacketSender client = new PacketSender(channelHandlerContext.channel());
+                                        server.getListeners().forEach(l -> l.clientConnect(client));
                                         if (channelHandlerContext.channel().isActive()) {
-                                            this.sender = new PacketSender(channelHandlerContext.channel());
-                                            server.getClientManager().add(sender);
+                                            server.getClientManager().add(client);
                                         }
                                     }
 
                                     @Override
                                     public void channelInactive(ChannelHandlerContext channelHandlerContext) {
-                                        listener.clientDisconnect(new PacketSender(channelHandlerContext.channel()));
-                                        if (sender != null && server.getClientManager().contains(sender)) {
-                                            server.getClientManager().remove(sender);
+                                        PacketSender client = new PacketSender(channelHandlerContext.channel());
+                                        server.getListeners().forEach(l -> l.clientDisconnect(client));
+                                        if (client != null && server.getClientManager().contains(client)) {
+                                            server.getClientManager().remove(client);
                                         }
                                     }
 
                                     @Override
-                                    public void channelRead(ChannelHandlerContext channelHandlerContext, Object o) throws IllegalPacket, IllegalPacketFormat {
+                                    public void channelRead(ChannelHandlerContext channelHandlerContext, Object o) {
                                         PacketSender client = new PacketSender(channelHandlerContext.channel());
-                                        listener.onPacketReceive(client, new String(Base64.getDecoder().decode((String) o)));
+                                        server.getListeners().forEach(l -> l.onPacketReceive(client, new String(Base64.getDecoder().decode((String) o))));
 
-                                        RawPacketResolver resolver = new RawPacketResolver((String) o);
-                                        BenchionPacket packet = resolver.resolve();
-                                        PacketContext context = resolver.resolveData();
+                                        try {
+                                            RawPacketResolver resolver = new RawPacketResolver(registry, (String) o);
+                                            BenchionPacket packet = resolver.resolve();
+                                            PacketContext context = resolver.resolveData();
 
-                                        packet.read(client, context);
-                                        packet.handle();
+                                            packet.read(client, context);
+                                            packet.handle();
+                                        } catch (IllegalPacketFormat | IllegalPacket e) {
+                                            e.printStackTrace();
+                                        }
                                     }
 
                                     @Override
                                     public void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable throwable) {
-                                        listener.exceptionCaught(new PacketSender(channelHandlerContext.channel()), throwable);
+                                        PacketSender client = new PacketSender(channelHandlerContext.channel());
+                                        server.getListeners().forEach(l -> l.exceptionCaught(client, throwable));
                                     }
-                                }));
+                                });
+                                server.getHandlers().forEach(pipeline::addLast);
                             }
                         });
+
                 server.getChannelOptionsMap().forEach((opt, val) -> {
                     if (val.getValue()) {
                         b.childOption(opt, val.getKey());
@@ -106,13 +114,12 @@ final class ServerThread {
                 bossGroup.shutdownGracefully();
             }
         });
-
-        this.task.join();
+        this.task.start();
     }
 
     public void shutdown() {
-        if (this.task == null || this.task.isCancelled() || this.task.isDone() || this.task.isCompletedExceptionally())
+        if (this.task == null || this.task.isAlive())
             return;
-        this.task.cancel(true);
+        this.task.interrupt();
     }
 }
