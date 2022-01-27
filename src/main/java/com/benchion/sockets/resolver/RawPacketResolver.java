@@ -4,11 +4,10 @@ import com.benchion.sockets.packet.BenchionPacket;
 import com.benchion.sockets.packet.PacketContext;
 import com.benchion.sockets.packet.PacketRegistry;
 import com.benchion.sockets.packet.exceptions.IllegalPacket;
+import com.benchion.sockets.reflection.GsonReflection;
 import com.benchion.sockets.resolver.exceptions.IllegalPacketFormat;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import io.netty.util.CharsetUtil;
 
@@ -30,7 +29,8 @@ public final class RawPacketResolver {
      */
     public RawPacketResolver(PacketRegistry registry, String str) throws IllegalPacketFormat {
         this.registry = registry;
-        JsonObject content = JsonParser.parseString(decode(str)).getAsJsonObject();
+
+        JsonObject content = GsonReflection.parseJson(decode(str)).getAsJsonObject();
         if (!content.has("packet_id")) throw new IllegalPacketFormat("The packet id is not specified!");
 
         this.id = content.get("packet_id").getAsInt();
@@ -40,7 +40,8 @@ public final class RawPacketResolver {
             return;
         }
 
-        Type mapType = new TypeToken<HashMap<String, Object>>(){}.getType();
+        Type mapType = new TypeToken<HashMap<String, Object>>() {
+        }.getType();
         Gson gson = new Gson();
         this.data = gson.fromJson(content.get("data"), mapType);
     }

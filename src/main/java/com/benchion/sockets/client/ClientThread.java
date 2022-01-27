@@ -8,7 +8,6 @@ import com.benchion.sockets.packet.exceptions.IllegalPacket;
 import com.benchion.sockets.resolver.RawPacketResolver;
 import com.benchion.sockets.resolver.exceptions.IllegalPacketFormat;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -18,7 +17,6 @@ import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 final class ClientThread {

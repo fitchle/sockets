@@ -20,7 +20,7 @@ import java.util.function.Function;
  * Server class that builds new TCP Server and return for you.
  *
  * @author Benchion
- * @version 1.0.1
+ * @version 1.0.3
  * @see BenchionSocketClient
  */
 @Getter
@@ -37,7 +37,8 @@ public final class BenchionSocketServer {
 
     private ServerThread serverThread;
 
-    private PacketRegistry registry;
+    private final PacketRegistry registry;
+
     /**
      * @param port port of server
      */
