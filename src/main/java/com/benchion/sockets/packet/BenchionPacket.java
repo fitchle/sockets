@@ -1,17 +1,29 @@
 package com.benchion.sockets.packet;
 
-import com.benchion.sockets.server.BenchionServer;
-import com.benchion.sockets.server.client.ServerClient;
-import io.netty.channel.Channel;
-
+/**
+ * Packet class for custom packets
+ */
 public abstract class BenchionPacket {
-    protected final BenchionServer server;
-
-    public BenchionPacket(BenchionServer server) {
-        this.server = server;
+    /**
+     * triggered to read data when the specified packet arrives.
+     *
+     * @param sender  Packet sender
+     * @param context Packet context, that field contains the packet data
+     */
+    public void read(PacketSender sender, PacketContext context) {
     }
-    public void read(ServerClient client, PacketContext context) {}
-    public void handle() {}
+
+    /**
+     * triggered to handle incoming packet.
+     */
+    public void handle() {
+    }
+
+    /**
+     * triggered to specify data while sending the specified packet
+     *
+     * @return Packet context, that field contains the packet data
+     */
     public PacketContext write() {
         return null;
     }
