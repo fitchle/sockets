@@ -15,7 +15,7 @@ import java.util.function.Function;
  * Client class that builds new client and return for you.
  *
  * @author Benchion
- * @version 1.0
+ * @version 1.0.1
  * @see com.benchion.sockets.server.BenchionServer
  */
 @Getter

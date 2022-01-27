@@ -16,7 +16,7 @@ import java.util.function.Function;
  * Server class that builds new TCP Server and return for you.
  *
  * @author Benchion
- * @version 1.0
+ * @version 1.0.1
  * @see com.benchion.sockets.client.BenchionClient
  */
 @Getter
