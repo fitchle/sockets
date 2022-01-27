@@ -91,7 +91,7 @@ Here's why:
 <h4 style="margin-top: 30px;">Creating Server</h4>
 
 ```java
-  BenchionServer server = new BenchionServer(8888); // Creates a server
+  BenchionSocketServer server = new BenchionSocketServer(8888); // Creates a server
   server.build().run(); // Builds and runs the server
 ```
 
@@ -99,7 +99,7 @@ Here's why:
 <h4 style="margin-top: 10px;">Creating Client & Connect a Server</h4>
 
 ```java
-  BenchionClient client = new BenchionClient("hostname", 8888); // Creates a client
+  BenchionSocketClient client = new BenchionSocketClient("hostname", 8888); // Creates a client
   client.build().connect(); // Builds and connects to server
 ```
 
