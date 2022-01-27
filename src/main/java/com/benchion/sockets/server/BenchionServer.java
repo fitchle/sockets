@@ -22,12 +22,15 @@ import java.util.function.Function;
 @Getter
 public final class BenchionServer {
     private final int port;
+
     private final ArrayList<ChannelHandler> handlers;
     private final ArrayList<EventExecutorGroup> executorGroups;
     private final ArrayList<BenchionServerListener> listeners;
     private final HashMap<ChannelOption, Map.Entry<Object, Boolean>> channelOptionsMap;
     private final ClientManager clientManager;
     private Function<SocketChannel, SocketChannel> socketChannelModify;
+    private int bufferLimit;
+
 
     private ServerThread serverThread;
 
@@ -44,6 +47,7 @@ public final class BenchionServer {
 
         this.channelOptionsMap = new HashMap<>();
         this.socketChannelModify = Function.identity();
+        this.bufferLimit = 1024;
 
         this.clientManager = new ClientManager();
     }
@@ -76,8 +80,8 @@ public final class BenchionServer {
     }
 
     /**
-     * @param option Channel Option
-     * @param value  Value for Channel Option
+     * @param option  Channel Option
+     * @param value   Value for Channel Option
      * @param isChild child status
      * @return instance
      */
@@ -92,6 +96,15 @@ public final class BenchionServer {
      */
     public BenchionServer modify(Function<SocketChannel, SocketChannel> modifier) {
         this.socketChannelModify = modifier;
+        return this;
+    }
+
+    /**
+     * @param bufferLimit buffer size limit in a packet
+     * @return instance
+     */
+    public BenchionServer setBufferLimit(int bufferLimit) {
+        this.bufferLimit = bufferLimit;
         return this;
     }
 
