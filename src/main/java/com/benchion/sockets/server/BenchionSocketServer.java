@@ -117,7 +117,8 @@ public final class BenchionSocketServer {
      * Registers specified packet
      *
      * @param packet the packet to register
-     * @throws IllegalPacket
+     * @throws IllegalPacket Illegal Packet Exception
+     * @return Benchion socket server
      */
     public BenchionSocketServer register(BenchionPacket packet) throws IllegalPacket {
         if (!packet.getClass().isAnnotationPresent(PacketID.class))
@@ -143,11 +144,11 @@ public final class BenchionSocketServer {
     /**
      * That function send packets to all connected clients
      *
-     * @return instance
+     * @param packet packet to send all clients
      */
     public void sendAll(BenchionPacket packet) {
-        CompletableFuture<Void> task = CompletableFuture.runAsync(() -> clientManager.getClients().forEach(c -> c.sendPacket(packet)));
-        task.join();
+        Thread thread = new Thread(() -> clientManager.getClients().forEach(c -> c.sendPacket(packet)));
+        thread.start();
     }
 
     /**

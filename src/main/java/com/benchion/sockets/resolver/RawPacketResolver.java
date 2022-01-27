@@ -25,7 +25,8 @@ public final class RawPacketResolver {
 
     /**
      * @param str Raw Packet Data
-     * @throws IllegalPacketFormat
+     * @param registry Registry packet
+     * @throws IllegalPacketFormat illegal packet format usage
      */
     public RawPacketResolver(PacketRegistry registry, String str) throws IllegalPacketFormat {
         this.registry = registry;
@@ -60,7 +61,7 @@ public final class RawPacketResolver {
      * Resolves specified raw packet data to BenchionPacket
      *
      * @return Benchion Packet Class
-     * @throws IllegalPacket
+     * @throws IllegalPacket Illegal Packet Exception
      */
     public BenchionPacket resolve() throws IllegalPacket {
         if (!registry.contains(id)) throw new IllegalPacket("That packet is not registered in server!");
@@ -70,7 +71,7 @@ public final class RawPacketResolver {
     /**
      * Resolves data in specified raw packet data
      *
-     * @return
+     * @return Packet Context
      */
     public PacketContext resolveData() {
         return new PacketContext(id, data);
