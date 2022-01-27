@@ -8,12 +8,13 @@ public final class PacketRegistry {
     public PacketRegistry() {
         this.packetMap = new HashMap<>();
     }
+
     public void register(int id, BenchionPacket packet) {
         this.packetMap.putIfAbsent(id, packet);
     }
 
     public void unregister(int id) {
-        if (this.packetMap.containsKey(id)) this.packetMap.remove(id);
+        this.packetMap.remove(id);
     }
 
     public BenchionPacket get(int id) {

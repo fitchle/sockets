@@ -16,7 +16,6 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-import lombok.val;
 
 import java.util.Base64;
 
@@ -75,7 +74,6 @@ final class ServerThread {
                                     public void channelRead(ChannelHandlerContext channelHandlerContext, Object o) {
                                         PacketSender client = new PacketSender(channelHandlerContext.channel());
                                         server.getListeners().forEach(l -> l.onPacketReceive(client, new String(Base64.getDecoder().decode((String) o))));
-
                                         try {
                                             RawPacketResolver resolver = new RawPacketResolver(registry, (String) o);
                                             BenchionPacket packet = resolver.resolve();
