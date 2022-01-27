@@ -34,7 +34,8 @@
     </a>
 
 </div>
-
+<br/>
+<br/>
 <details>
   <summary style="font-size: 15px;">Contents</summary>
   <ol>
@@ -58,7 +59,7 @@
   </ol>
 </details>
 
-<h2 style="margin: 0;">About The Project</h2>
+<h2 style="margin: 0;">📗 About The Project</h2>
 <p style="margin: 0; line-height: 0;">
 Benchion Socket Library is an understandable asynchronous java library made to make your netty work easier.
 </p>
@@ -69,7 +70,7 @@ Here's why:
 * It is an **asynchronous** library.
 
 ### Built With
-<p style="line-height: 0;">In this project, netty was used as socket library, gson was used as json library, lombok was used as code generation library.</p>
+<p style="margin: 0; line-height: 20px;">In this project, netty was used as socket library, gson was used as json library, lombok was used as code generation library.</p>
 
 * [Netty.io](https://netty.io)
 * [Gson](https://github.com/google/gson)
@@ -104,12 +105,12 @@ Here's why:
 
 For more examples, please refer to the [Documentation](https://gitbook.io)
 
-## License
+## 🔐 License
 Distributed under the MIT License. See `LICENSE` for more information.
 
-## Contact
+## 📞 Contact
 <a href="https://discordapp.com/users/309326498500968449"><img src="https://img.shields.io/badge/-Discord-black.svg?style=for-the-badge&logo=discord&logoColor=white&colorB=6366F1"></img></a>
 
-## Contributors
+## 🧑🏻‍💻 Contributors
 <img src="https://i.ibb.co/cvBQ2Qj/Gimble-Logo-Design.png" width="100" style="border-radius: 15px"></img>
 <img src="https://i.ibb.co/rHZn9SJ/pp-00000.png" width="100" style="border-radius: 15px"></img>
