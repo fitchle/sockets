@@ -99,7 +99,7 @@ Here's why:
 <h4 style="margin-top: 10px;">Creating Client & Connect a Server</h4>
 
 ```java
-  BenchionClient client = new BenchionClient(8888); // Creates a client
+  BenchionClient client = new BenchionClient("hostname", 8888); // Creates a client
   client.build().connect(); // Builds and connects to server
 ```
 
