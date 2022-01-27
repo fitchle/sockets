@@ -1,6 +1,10 @@
 package com.benchion.sockets.server;
 
+import com.benchion.sockets.client.BenchionSocketClient;
 import com.benchion.sockets.packet.BenchionPacket;
+import com.benchion.sockets.packet.PacketID;
+import com.benchion.sockets.packet.PacketRegistry;
+import com.benchion.sockets.packet.exceptions.IllegalPacket;
 import com.benchion.sockets.server.client.ClientManager;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
@@ -17,28 +21,27 @@ import java.util.function.Function;
  *
  * @author Benchion
  * @version 1.0.1
- * @see com.benchion.sockets.client.BenchionClient
+ * @see BenchionSocketClient
  */
 @Getter
-public final class BenchionServer {
+public final class BenchionSocketServer {
     private final int port;
 
     private final ArrayList<ChannelHandler> handlers;
     private final ArrayList<EventExecutorGroup> executorGroups;
-    private final ArrayList<BenchionServerListener> listeners;
+    private final ArrayList<BenchionSocketServerListener> listeners;
     private final HashMap<ChannelOption, Map.Entry<Object, Boolean>> channelOptionsMap;
     private final ClientManager clientManager;
     private Function<SocketChannel, SocketChannel> socketChannelModify;
     private int bufferLimit;
 
-
     private ServerThread serverThread;
 
-
+    private PacketRegistry registry;
     /**
      * @param port port of server
      */
-    public BenchionServer(int port) {
+    public BenchionSocketServer(int port) {
         this.port = port;
 
         this.handlers = new ArrayList<>();
@@ -50,13 +53,14 @@ public final class BenchionServer {
         this.bufferLimit = 1024;
 
         this.clientManager = new ClientManager();
+        this.registry = new PacketRegistry();
     }
 
     /**
      * @param handlers Channel handlers
      * @return instance
      */
-    public BenchionServer add(ChannelHandler... handlers) {
+    public BenchionSocketServer add(ChannelHandler... handlers) {
         Collections.addAll(this.handlers, handlers);
         return this;
     }
@@ -65,7 +69,7 @@ public final class BenchionServer {
      * @param groups Event Executor Groups
      * @return instance
      */
-    public BenchionServer add(EventExecutorGroup... groups) {
+    public BenchionSocketServer add(EventExecutorGroup... groups) {
         Collections.addAll(this.executorGroups, groups);
         return this;
     }
@@ -74,7 +78,7 @@ public final class BenchionServer {
      * @param listeners Benchion Server Listeners
      * @return instance
      */
-    public BenchionServer add(BenchionServerListener... listeners) {
+    public BenchionSocketServer add(BenchionSocketServerListener... listeners) {
         Collections.addAll(this.listeners, listeners);
         return this;
     }
@@ -85,7 +89,7 @@ public final class BenchionServer {
      * @param isChild child status
      * @return instance
      */
-    public BenchionServer add(ChannelOption option, Object value, boolean isChild) {
+    public BenchionSocketServer add(ChannelOption option, Object value, boolean isChild) {
         channelOptionsMap.put(option, new AbstractMap.SimpleEntry<>(value, isChild));
         return this;
     }
@@ -94,7 +98,7 @@ public final class BenchionServer {
      * @param modifier The server modifier
      * @return instance
      */
-    public BenchionServer modify(Function<SocketChannel, SocketChannel> modifier) {
+    public BenchionSocketServer modify(Function<SocketChannel, SocketChannel> modifier) {
         this.socketChannelModify = modifier;
         return this;
     }
@@ -103,8 +107,24 @@ public final class BenchionServer {
      * @param bufferLimit buffer size limit in a packet
      * @return instance
      */
-    public BenchionServer setBufferLimit(int bufferLimit) {
+    public BenchionSocketServer setBufferLimit(int bufferLimit) {
         this.bufferLimit = bufferLimit;
+        return this;
+    }
+
+    /**
+     * Registers specified packet
+     *
+     * @param packet the packet to register
+     * @throws IllegalPacket
+     */
+    public BenchionSocketServer register(BenchionPacket packet) throws IllegalPacket {
+        if (!packet.getClass().isAnnotationPresent(PacketID.class))
+            throw new IllegalPacket("The packet id is not specified in Packet class. Please specify a unique packet id to your packet.");
+        PacketID packetID = packet.getClass().getAnnotation(PacketID.class);
+
+        if (registry.contains(packetID.value())) return this;
+        registry.register(packetID.value(), packet);
         return this;
     }
 
@@ -113,7 +133,7 @@ public final class BenchionServer {
      *
      * @return instance
      */
-    public BenchionServer build() {
+    public BenchionSocketServer build() {
         this.serverThread = new ServerThread(this);
         return this;
     }

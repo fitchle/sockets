@@ -1,10 +1,11 @@
 package com.benchion.sockets.resolver;
 
 import com.benchion.sockets.packet.BenchionPacket;
-import com.benchion.sockets.packet.BenchionPackets;
 import com.benchion.sockets.packet.PacketContext;
+import com.benchion.sockets.packet.PacketRegistry;
 import com.benchion.sockets.packet.exceptions.IllegalPacket;
 import com.benchion.sockets.resolver.exceptions.IllegalPacketFormat;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -21,12 +22,14 @@ import java.util.HashMap;
 public final class RawPacketResolver {
     private final int id;
     private final HashMap<String, Object> data;
+    private final PacketRegistry registry;
 
     /**
      * @param str Raw Packet Data
      * @throws IllegalPacketFormat
      */
-    public RawPacketResolver(String str) throws IllegalPacketFormat {
+    public RawPacketResolver(PacketRegistry registry, String str) throws IllegalPacketFormat {
+        this.registry = registry;
         JsonObject content = JsonParser.parseString(decode(str)).getAsJsonObject();
         if (!content.has("packet_id")) throw new IllegalPacketFormat("The packet id is not specified!");
 
@@ -37,8 +40,7 @@ public final class RawPacketResolver {
             return;
         }
 
-        Type mapType = new TypeToken<HashMap<String, Object>>() {
-        }.getType();
+        Type mapType = new TypeToken<HashMap<String, Object>>(){}.getType();
         Gson gson = new Gson();
         this.data = gson.fromJson(content.get("data"), mapType);
     }
@@ -60,8 +62,8 @@ public final class RawPacketResolver {
      * @throws IllegalPacket
      */
     public BenchionPacket resolve() throws IllegalPacket {
-        if (!BenchionPackets.contains(id)) throw new IllegalPacket("That packet is not registered in server!");
-        return BenchionPackets.get(id);
+        if (!registry.contains(id)) throw new IllegalPacket("That packet is not registered in server!");
+        return registry.get(id);
     }
 
     /**

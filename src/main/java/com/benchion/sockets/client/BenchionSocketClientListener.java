@@ -5,7 +5,7 @@ import com.benchion.sockets.packet.PacketSender;
 /**
  * That  listener adapter for client
  */
-public abstract class BenchionClientListener {
+public abstract class BenchionSocketClientListener {
 
     /**
      * triggered when client successfully connects to the server

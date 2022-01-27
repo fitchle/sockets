@@ -6,7 +6,6 @@ import lombok.Getter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.concurrent.CompletableFuture;
 
 @Getter
 public final class PacketSender {
@@ -22,8 +21,8 @@ public final class PacketSender {
      * @param packet Sent Packet
      */
     public void sendPacket(BenchionPacket packet) {
-        CompletableFuture<Void> task = CompletableFuture.runAsync(() -> channel.writeAndFlush(Unpooled.copiedBuffer(new String(Base64.getEncoder().encode(packet.write().toString().getBytes(StandardCharsets.UTF_8))) + "\n", StandardCharsets.UTF_8)));
-        task.join();
+        Thread t = new Thread(() -> channel.writeAndFlush(Unpooled.copiedBuffer(new String(Base64.getEncoder().encode(packet.write().toString().getBytes(StandardCharsets.UTF_8))) + "\n", StandardCharsets.UTF_8)));
+        t.start();
     }
 
     /**
